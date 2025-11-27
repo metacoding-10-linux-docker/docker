@@ -5,7 +5,5 @@
 - docker-compose up
 
 ### 실행
-- http://localhost:80/
-
-### db store 삭제
-- rm -rf db/store
+- http://localhost/app1
+- http://localhost/app2

@@ -6,9 +6,9 @@
 
 ### ex04 : redis server
 
-### ex05 : spring server(jar 실행)
+### ex05 : mysql db server
 
-### ex06 : mysql db server
+### ex06 : Docker Compose
 
 ### ex07 : spring server + mysql db + front
 
