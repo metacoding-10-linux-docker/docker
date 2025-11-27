@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: metacoding
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: db } }
+  template:
+    metadata: { labels: { app: db } }
+    spec:
+      containers:
+        - name: mysql
+          image: metacoding/mysql:1 
+          ports: [{ containerPort: 3306 }]
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                {
+                  secretKeyRef:
+                    { name: mysql-secret, key: MYSQL_ROOT_PASSWORD },
+                }
+            - name: MYSQL_DATABASE
+              valueFrom:
+                { secretKeyRef: { name: mysql-secret, key: MYSQL_DATABASE } }
+            - name: MYSQL_USER
+              valueFrom:
+                { secretKeyRef: { name: mysql-secret, key: MYSQL_USER } }
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                { secretKeyRef: { name: mysql-secret, key: MYSQL_PASSWORD } }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/mysql }
+          readinessProbe:
+            exec:
+              command:
+                [
+                  "bash",
+                  "-lc",
+                  "mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD",
+                ]
+            initialDelaySeconds: 25
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: { port: 3306 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: mysql-pvc }
