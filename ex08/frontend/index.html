@@ -1,42 +1,31 @@
 <!DOCTYPE html>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>FRONT + BACKEND + DB</title>
 </head>
 <body>
   <h1>사용자 리스트</h1>
 
-  <table class="table table-striped">
+<table class="table table-striped">
     <thead>
     <tr>
         <th>ID</th>
         <th>이름</th>
     </tr>
     </thead>
-
-    <tbody id="user-list">
-    
+    <tbody id="user-list">  
     </tbody>
-
 </table>
 
   <script>
-    $.ajax({
-      url: '/api/users',
-      type: 'GET'
-    }).done((response)=>{
-        console.log('통신 성공');
-        console.log(response);
-
-        response.forEach((user)=>{
-            $("#user-list").append(render(user));
-        })
-    }).fail((response)=>{
-        console.log('통신 실패');
-        console.log(response.responseText);
+    fetch('/api/users')
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      data.forEach(user => {
+        $("#user-list").append(render(user));
+      });
     });
 
     function render(user){
@@ -47,7 +36,6 @@
             </tr>
         `;
     }
-
   </script>
 </body>
 </html>
