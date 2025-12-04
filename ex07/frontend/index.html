@@ -20,15 +20,18 @@
 
   <script>
     fetch('/api/users')
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      data.forEach(user => {
-        $("#user-list").append(render(user));
-      });
-    });
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.body);
 
-    function render(user){
+        data.body.forEach(user => {
+          $("#user-list").append(render(user));
+        });
+      })
+      .catch(error => console.log(error)
+    );
+
+    function render(user) {
         return `
             <tr>
                 <td>${user.id}</td>
