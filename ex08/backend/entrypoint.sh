@@ -1,8 +1,8 @@
 #!/bin/bash
 
-git clone https://github.com/metacoding-10-linux-docker/backend-server 
+git clone https://github.com/metacoding-10-linux-docker/backend-redis-server 
 
-cd backend-server
+cd backend-redis-server
 
 chmod +x gradlew 
 

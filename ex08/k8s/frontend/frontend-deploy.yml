@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: frontend-deploy
   namespace: metacoding
 spec:
   replicas: 1
@@ -14,7 +14,8 @@ spec:
         app: frontend
     spec:
       containers:
-        - name: web
+        - name: frontend-server
           image: metacoding/frontend:1
           ports:
             - containerPort: 80
+
