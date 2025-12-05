@@ -21,6 +21,8 @@
 #### pod 생성
 
 - kubectl apply -f k8s/db/db-pv.yml 
+- kubectl apply -f k8s/db/db-pvc.yml
+
 - kubectl apply -f k8s/ --recursive
 
 ### 결과 확인
@@ -42,28 +44,100 @@
 
 MySQL이 "data directory has files in it" 오류를 발생시키는 경우:
 
+#### 방법 1: Deployment 스케일 다운 후 정리 (권장)
+
 ```bash
-# 1. DB Pod 삭제
-kubectl -n metacoding delete pod -l app=db
+# 1. DB Deployment를 0으로 스케일 다운 (Pod 중지)
+kubectl -n metacoding scale deploy db-deploy --replicas=0
 
 # 2. 데이터 디렉토리 정리 (minikube 내부)
 minikube ssh "sudo rm -rf /data/mysql/*"
 
-# 3. Pod 재시작 (자동으로 재생성됨)
-kubectl -n metacoding get pods
+# 3. Deployment를 다시 1로 스케일 업
+kubectl -n metacoding scale deploy db-deploy --replicas=1
+
+# 4. Pod 상태 확인
+kubectl -n metacoding get pods -l app=db
 ```
 
-또는 로컬 PC 경로를 사용하는 경우:
+#### 방법 2: Pod 강제 삭제 후 정리
 
 ```bash
-# 1. DB Pod 삭제
-kubectl -n metacoding delete pod -l app=db
+# 1. DB Pod 강제 삭제
+kubectl -n metacoding delete pod -l app=db --force --grace-period=0
 
-# 2. 로컬 PC의 데이터 디렉토리 정리
-# Windows: C:\volume\db 폴더 내용 삭제
+# 2. 데이터 디렉토리 정리 (minikube 내부)
+minikube ssh "sudo rm -rf /data/mysql/*"
 
-# 3. Pod 재시작
-kubectl -n metacoding get pods
+# 3. Pod 자동 재생성 확인
+kubectl -n metacoding get pods -l app=db
+```
+
+#### 로컬 PC 경로를 사용하는 경우:
+
+```bash
+# 1. DB Deployment를 0으로 스케일 다운
+kubectl -n metacoding scale deploy db-deploy --replicas=0
+
+# 2. Windows에서 로컬 경로 정리
+# C:\volume\mysql 폴더 내용 삭제 (또는 폴더 자체 삭제)
+
+# 3. Deployment를 다시 1로 스케일 업
+kubectl -n metacoding scale deploy db-deploy --replicas=1
+
+# 4. Pod 상태 확인
+kubectl -n metacoding get pods -l app=db
+```
+
+### 로컬 데이터 사용하기
+
+미니큐브를 재실행했을 때 로컬에 있는 데이터를 사용하려면:
+
+#### MySQL 동작 방식
+
+- **데이터 디렉토리가 비어있음**: 초기화 실행 (init.sql 실행)
+- **데이터 디렉토리에 완전한 MySQL 데이터가 있음**: 기존 데이터 사용 (init.sql 실행 안 함)
+- **데이터 디렉토리에 불완전한 파일이 있음**: 오류 발생
+
+#### 해결 방법
+
+**옵션 1: 완전히 초기화된 데이터 사용 (권장)**
+
+```bash
+# 1. 처음 한 번만 초기화 (데이터 디렉토리 비우기)
+kubectl -n metacoding scale deploy db-deploy --replicas=0
+minikube ssh "sudo rm -rf /data/mysql/*"
+kubectl -n metacoding scale deploy db-deploy --replicas=1
+
+# 2. MySQL이 완전히 초기화될 때까지 대기
+kubectl -n metacoding wait --for=condition=ready pod -l app=db --timeout=300s
+
+# 3. 이후부터는 데이터가 유지되므로 그대로 사용 가능
+# 미니큐브를 재시작해도 데이터가 유지됨
+```
+
+**옵션 2: 기존 데이터 백업 후 복원**
+
+```bash
+# 1. 기존 데이터 백업
+kubectl -n metacoding exec -it <db-pod-name> -- mysqldump -u root -p metadb > backup.sql
+
+# 2. 새로 초기화
+kubectl -n metacoding scale deploy db-deploy --replicas=0
+minikube ssh "sudo rm -rf /data/mysql/*"
+kubectl -n metacoding scale deploy db-deploy --replicas=1
+
+# 3. 데이터 복원
+kubectl -n metacoding exec -i <db-pod-name> -- mysql -u root -p metadb < backup.sql
+```
+
+**옵션 3: 불완전한 파일만 정리**
+
+```bash
+# 불완전한 초기화 파일만 삭제 (데이터는 유지)
+kubectl -n metacoding scale deploy db-deploy --replicas=0
+minikube ssh "sudo rm -rf /data/mysql/*.pid /data/mysql/*.err /data/mysql/ib_logfile*"
+kubectl -n metacoding scale deploy db-deploy --replicas=1
 ```
 
 ### 백엔드 오류 해결
