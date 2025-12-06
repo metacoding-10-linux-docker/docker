@@ -4,10 +4,10 @@ metadata:
   name: db-pvc
   namespace: metacoding
 spec:
+  volumeName: db-pv
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
   storageClassName: ""
-
