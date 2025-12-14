@@ -14,7 +14,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root1234
     networks:
-      - network
+      - myNetwork
 
   db:
     container_name: "db"
@@ -26,7 +26,7 @@ services:
     volumes:
       - ./db/store:/var/lib/mysql
     networks:
-      - network
+      - myNetwork
 
   frontend:
     container_name: "frontend"
@@ -38,7 +38,7 @@ services:
     depends_on:
       - backend
     networks:
-      - network
+      - myNetwork
 
 networks:
-  network:
+  myNetwork:
