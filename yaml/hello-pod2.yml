@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Pod                 # 리소스 종류
+metadata:
+  name: hello-pod2        # 리소스명
+spec:
+  containers:
+    - name: hello-container
+      image: nginx:1.20        # 이미지

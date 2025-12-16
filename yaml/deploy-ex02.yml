@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-replica     
+spec:                    
+  replicas: 4            # pod 수 지정
+
+  strategy:              
+    type: RollingUpdate  #  롤링 업데이트 전략
+    rollingUpdate:
+      maxSurge: 4        # 업데이트 중 최대 4개까지 추가 생성
+      maxUnavailable: 4  # 업데이트 중 최대 4개까지 종료 허용
+
+  selector:              # 라벨이 app: nginx 인 pod를 관리
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx       # pod에 붙일 라벨
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.20

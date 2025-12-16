@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-conn               # ConfigMap 이름 지정         
+data:                                # 설정값 넣는 영역
+  conn_info: "localhost:80"  
+  conn_url: "config.test"
