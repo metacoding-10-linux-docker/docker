@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: emptydir-pod
+spec:
+  containers:
+  - name: nginx-empty
+    image: nginx
+    volumeMounts:              
+    - name: cache         # 사용할 볼륨명         
+      mountPath: /cache   # 볼륨 저장 경로
+  volumes:                 
+  - name: cache           # 볼륨명
+    emptyDir: {}          # emptyDir 타입

@@ -13,7 +13,7 @@ spec:
         app: nginx                          # pod에 붙일 라벨
     spec:
       containers:
-        - name: nginx-containera
+        - name: nginx-container
           image: nginx:1.20
           envFrom:
             - configMapRef:

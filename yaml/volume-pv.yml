@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: volume-pv
+spec:
+  capacity:                
+    storage: 1Gi           # 1Gb 용량 할당
+  accessModes:
+    - ReadWriteOnce        # 읽기/쓰기 권한
+  storageClassName: ""     # PVC가 볼륨을 자동으로 생성 못하게 방지
+  persistentVolumeReclaimPolicy: Retain # PVC 삭제되어도 유지
+  hostPath:
+    path: /mnt/data        # 볼륨 경로 지정
